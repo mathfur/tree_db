@@ -3,8 +3,13 @@
 
 typedef struct _HashTable HashTable;
 
+typedef struct _Edge {
+    char *start;
+    char *end;
+} Edge;
+
 HashTable* init_table(int size);
 void add_edge_to_table(HashTable* tbl, char *start, char *end);
-char **get_ends_by_start(HashTable* tbl, char *name);
+int get_descendants(HashTable* tbl, char* center, int depth, Edge* result, int max_num_of_result);
 
 #endif

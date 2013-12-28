@@ -17,6 +17,7 @@
 *.out
 *.app
 
-input_edge_to_graph
+tree_db
 build/
 tmp/
+tags

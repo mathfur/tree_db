@@ -2,6 +2,42 @@
 #include <stdio.h>
 #include "tree.h"
 
+
+static void show_indent(int indent_size){
+    int i = 0;
+    while(i < indent_size){
+        printf(" ");
+        i++;
+    }
+}
+
+static void display_tree0(Tree* t, int indent_size){
+    show_indent(indent_size);
+    printf("{\n");
+
+    if(t->name){
+        show_indent(indent_size + INDENT_STEP);
+        printf("\"name\": \"%s\",\n", t->name);
+    }
+
+    show_indent(indent_size + INDENT_STEP);
+    printf("\"children\": [\n");
+
+    TreeLink* curlink = t->tree_link;
+    while(curlink){
+        display_tree0(curlink->tree, indent_size + INDENT_STEP*2);
+        curlink = curlink->next;
+    }
+
+    show_indent(indent_size + INDENT_STEP);
+    printf("]\n");
+
+    show_indent(indent_size);
+    printf("}\n");
+}
+
+//=======================================
+
 Tree* create_simple_node(char* s){
     Tree* t = (Tree*) malloc(sizeof(Tree));
 
@@ -27,39 +63,6 @@ void add_tree_to_node(Tree* t, Tree* child){
     }else{
         t->tree_link = next_link;
     }
-}
-
-void show_indent(int indent_size){
-    int i = 0;
-    while(i < indent_size){
-        printf(" ");
-        i++;
-    }
-}
-
-void display_tree0(Tree* t, int indent_size){
-    show_indent(indent_size);
-    printf("{\n");
-
-    if(t->name){
-        show_indent(indent_size + INDENT_STEP);
-        printf("\"name\": \"%s\",\n", t->name);
-    }
-
-    show_indent(indent_size + INDENT_STEP);
-    printf("\"children\": [\n");
-
-    TreeLink* curlink = t->tree_link;
-    while(curlink){
-        display_tree0(curlink->tree, indent_size + INDENT_STEP*2);
-        curlink = curlink->next;
-    }
-
-    show_indent(indent_size + INDENT_STEP);
-    printf("]\n");
-
-    show_indent(indent_size);
-    printf("}\n");
 }
 
 void display_tree(Tree* t){
