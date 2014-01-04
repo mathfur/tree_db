@@ -2,6 +2,6 @@
 #define __SERVER_H_INCLUDED_
 
 #include "edge.h"
-int run_server(HashTable *tbl);
+int run_server(HashTable *tbl, int port);
 
 #endif

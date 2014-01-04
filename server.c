@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include "helper.h"
 #include "server.h"
 #include "edge.h"
 
@@ -46,7 +47,7 @@ static SearchOption about_query(char *buf, int len){
     return search_option;
 }
 
-int run_server(HashTable *tbl) {
+int run_server(HashTable *tbl, int port) {
     int sock0;
     struct sockaddr_in addr;
     struct sockaddr_in client;
@@ -63,7 +64,7 @@ int run_server(HashTable *tbl) {
     
     /* ソケットの設定 */
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(12355);
+    addr.sin_port = htons(port);
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_len = sizeof(addr);
 

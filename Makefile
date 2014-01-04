@@ -3,9 +3,9 @@ FOO_VERSION=0.99
 PREFIX?=/usr/local
 INSTALL_BIN=$(PREFIX)/bin
 
-CC?=gcc
-AR?=ar
-INSTALL?=install
+CC=gcc
+AR=ar
+INSTALL=install
 
 PROG?=tree_db
 OBJS=edge.o tree.o server.o helper.o
@@ -41,6 +41,9 @@ $(PROG): $(OBJS)
 install: $(PROG)
 	$(INSTALL) -m755 -d $(INSTALL_BIN)
 	$(INSTALL) $(PROG) $(INSTALL_BIN)
+
+uninstall:
+	$(RM) $(INSTALL_BIN)/$(PROG)
 
 clean:
 	rm -f $(OBJS) $(PROG)
