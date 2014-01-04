@@ -18,6 +18,17 @@ struct _HashTable {
 
 //=================================================
 
+static int inspect_edge(Edge *edge, char *buf, int max_length){
+    if(strlen(edge->start) + strlen(edge->end) >= max_length){
+        return -1;
+    }
+
+    strcpy(buf, edge->start);
+    strcat(buf, ",");
+    strcat(buf, edge->end);
+    return strlen(buf);
+}
+
 static int is_equal_edge(Edge *edge1, Edge *edge2){
     if((edge1->start == edge2->start) && (edge1->end == edge2->end)) {
         return 1;
@@ -131,7 +142,7 @@ void add_edge_to_table(HashTable *tbl, char *start, char *end){
     add_edge(&(tbl->end_table[end_key]), edge);
 }
 
-int get_descendants(HashTable *tbl, char *center, int depth, Edge *result, int max_num_of_result){
+static int get_descendants0(HashTable *tbl, char *center, int depth, Edge *result, int max_num_of_result, char* already_used_nodes){
     int idx = 0;
 
     if(depth < 0){
@@ -139,16 +150,34 @@ int get_descendants(HashTable *tbl, char *center, int depth, Edge *result, int m
     }else if(depth == 0){
         return 0;
     }else{
+        int j;
+        char *ptr;
+
+        for(j=0;j<BUFSIZ;j++){
+            ptr = already_used_nodes+BUFSIZ*j;
+            if(*ptr == *center){
+                return 0;
+            }
+        }
+
+        for(j=0;j<BUFSIZ;j++){
+            ptr = already_used_nodes+BUFSIZ*j;
+            if(*ptr == '\0'){
+                strcpy(ptr, center);
+                break;
+            }
+        }
+
         Edge edges[max_num_of_result];
         int len = get_edges_by_start(tbl, center, edges, max_num_of_result);
 
-        int i, j;
+        int i;
         for(i=0;i<len;i++){
             result[idx] = edges[i];
             idx++;
 
             Edge child_result[max_num_of_result];
-            int len_child = get_descendants(tbl, edges[i].end, depth - 1, child_result, max_num_of_result);
+            int len_child = get_descendants0(tbl, edges[i].end, depth - 1, child_result, max_num_of_result, already_used_nodes);
             for(j=0;j<len_child;j++){
                 result[idx] = child_result[j];
                 idx++;
@@ -157,4 +186,18 @@ int get_descendants(HashTable *tbl, char *center, int depth, Edge *result, int m
 
         return idx;
     }
+}
+
+int get_descendants(HashTable *tbl, char *center, int depth, Edge *result, int max_num_of_result){
+    char *buf = (char*) malloc(sizeof(char) * BUFSIZ * BUFSIZ);
+
+    int i;
+    for(i=0;i < BUFSIZ*BUFSIZ;i++){
+        *(buf + i) = '\0';
+    }
+
+    int r = get_descendants0(tbl, center, depth, result, max_num_of_result, buf);
+    free(buf);
+
+    return r;
 }
