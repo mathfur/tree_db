@@ -48,7 +48,7 @@ uninstall:
 clean:
 	rm -f $(OBJS) $(PROG)
 
-test: clean $(TEST_NAMES)
+test: clean $(TEST_NAMES) integration_test
 
 $(TEST_NAMES):
 	$(CC) $(CFLAGS) $(UNITY_INC_DIRS) $(SRC_FILES) test/$@.c -o $(UNITY_TARGET)
