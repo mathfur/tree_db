@@ -51,6 +51,7 @@ clean:
 test: clean $(TEST_NAMES) integration_test
 
 $(TEST_NAMES):
+	install -d $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(UNITY_INC_DIRS) $(SRC_FILES) test/$@.c -o $(UNITY_TARGET)
 	$(UNITY_PREFIX) ./$(UNITY_TARGET) $(UNITY_SUFFIX)
 
