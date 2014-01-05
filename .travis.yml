@@ -4,5 +4,8 @@ compiler:
   - gcc
   - clang
 
+before_script:
+  - "export CFLAGS=$CFLAGS' -v'"
+
 script:
-  - make && make test
+  - "make && make test"
