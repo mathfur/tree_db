@@ -50,7 +50,7 @@ static void free_hash_elem(HashElem *hash_elem, int free_edge_also){
     if(hash_elem->next){
         free_hash_elem(hash_elem->next, free_edge_also);
     }
-    
+
     if(hash_elem->edge){
         if(free_edge_also){
             free(hash_elem->edge->start);
@@ -152,16 +152,8 @@ static int get_descendants0(HashTable *tbl, char *center, int depth, Edge *resul
     }else{
         int j;
         char *ptr;
-
         for(j=0;j<BUFSIZ;j++){
-            ptr = already_used_nodes+BUFSIZ*j;
-            if(*ptr == *center){
-                return 0;
-            }
-        }
-
-        for(j=0;j<BUFSIZ;j++){
-            ptr = already_used_nodes+BUFSIZ*j;
+            ptr = already_used_nodes + BUFSIZ*j;
             if(*ptr == '\0'){
                 strcpy(ptr, center);
                 break;
@@ -173,12 +165,32 @@ static int get_descendants0(HashTable *tbl, char *center, int depth, Edge *resul
 
         int i;
         for(i=0;i<len;i++){
+            if(max_num_of_result < i){
+                return (-1);
+            }
+
             result[idx] = edges[i];
             idx++;
 
+            for(j=0;j<BUFSIZ;j++){
+                ptr = already_used_nodes + BUFSIZ*j;
+                if(!strcmp(ptr, edges[i].end)){
+                    continue;
+                }
+            }
+
             Edge child_result[max_num_of_result];
             int len_child = get_descendants0(tbl, edges[i].end, depth - 1, child_result, max_num_of_result, already_used_nodes);
+
+            if(len_child < 0){
+                return -1;
+            }
+
             for(j=0;j<len_child;j++){
+                if(max_num_of_result < j){
+                    return (-1);
+                }
+
                 result[idx] = child_result[j];
                 idx++;
             }

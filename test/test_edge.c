@@ -249,16 +249,19 @@ TEST(edge, test_get_descendants_with_loop){
 // ===============================================================================
 
 TEST(edge, test_get_descendants__edge_is_unique){
-    HashTable* tbl = init_table(1000);
-    Edge result[1000];
+    HashTable* tbl = init_table(10000);
+
+    int max_result = 10000;
+
+    Edge result[max_result];
     char buf[BUFSIZ], buf2[BUFSIZ];
 
     int len;
     long sum;
-    long sums[1000];
+    long sums[max_result];
     int i, j;
 
-    int max = 100;
+    int max = 10;
     for(i=0;i<max;i++){
         for(j=0;j<max;j++){
             sprintf(buf, "%d", i);
@@ -267,7 +270,7 @@ TEST(edge, test_get_descendants__edge_is_unique){
         }
     }
 
-    len = get_descendants(tbl, "1", 10, result, 1000);
+    len = get_descendants(tbl, "1", 10, result, max_result);
     TEST_ASSERT_TRUE(len > 0);
 
     for(i=0;i<len;i++){
