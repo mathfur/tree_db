@@ -4,11 +4,10 @@ compiler:
   - gcc
   - clang
 
-before_script:
+script:
   - "export CFLAGS=$CFLAGS' -v'"
   - "make"
   - "sudo make install"
-
-script:
-  - "make test"
+  - "make clean"
   - "tree_db --help"
+  - "make test"
