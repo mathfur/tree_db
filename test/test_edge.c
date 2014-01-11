@@ -233,7 +233,7 @@ TEST(edge, test_get_descendants_with_loop){
     TEST_ASSERT_EQUAL(get_descendants(tbl, "foo", 2, result, 10), 2);
     TEST_ASSERT_EQUAL_STRING((result[0]).start, "foo");
     TEST_ASSERT_EQUAL_STRING((result[0]).end,   "bar");
-    TEST_ASSERT_EQUAL_STRING((result[1]).start, "bax");
+    TEST_ASSERT_EQUAL_STRING((result[1]).start, "bar");
     TEST_ASSERT_EQUAL_STRING((result[1]).end,   "foo");
 
     // depthが3で、中心がfooの場合, (foo, bar), (bar, foo)が返る
