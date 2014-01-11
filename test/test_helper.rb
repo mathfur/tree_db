@@ -9,6 +9,8 @@ DATA_FNAME = "#{TMP_DIR}/testdata.txt"
 
 class Test::Unit::TestCase
   def prepare_input(pairs)
+    Dir.mkdir(TMP_DIR) unless File.directory?(TMP_DIR)
+
     open(DATA_FNAME, "w") do |f|
       pairs.each do |k, v|
         f.puts "#{k},#{v}"
