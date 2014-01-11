@@ -19,5 +19,12 @@
 
 tree_db
 build/
+dist/
 tmp/
 tags
+
+cabal-dev
+*.hi
+*.chi
+*.chs.h
+.virthualenv

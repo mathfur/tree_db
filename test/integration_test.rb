@@ -17,14 +17,12 @@ class IntegrationTest < Test::Unit::TestCase
     assert_equal([
       ["e1", "e2"],
       ["e1", "e3"],
-      ["e1", "e4"],
       ["e1", "e4"]
     ].sort, curl(:center => "e1", :depth => 1).sort)
 
     assert_equal([
       ["e1", "e2"],
       ["e1", "e3"],
-      ["e1", "e4"],
       ["e1", "e4"],
 
       ["e2", "e3"],
@@ -36,7 +34,6 @@ class IntegrationTest < Test::Unit::TestCase
     assert_equal([
       ["e1", "e2"],
       ["e1", "e3"],
-      ["e1", "e4"],
       ["e1", "e4"],
 
       ["e2", "e3"],

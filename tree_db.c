@@ -88,7 +88,10 @@ int main(int argc, char *argv[]){
     FILE *f;
     if((f = fopen(source_fname, "r")) != NULL){
         while(fscanf(f, "%[^,\n],%[^,\n]\n",s1, s2 ) != EOF ){
-            add_edge_to_table(tbl, s1, s2);
+            if(add_edge_to_table(tbl, s1, s2) < 0){
+                fprintf(stderr, "Fail at add_edge_to_table(tbl, %s, %s)", s1, s2);
+                return -1;
+            }
         }
     }else{
         printf( "File `%s` is not found.\n", source_fname );

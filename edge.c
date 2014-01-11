@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "edge.h"
 
-#define NODE_SIZE 1000
+#define LARGE_NUMBER (1000*1000)
 
 typedef struct _HashElem {
     Edge* edge;
@@ -61,7 +61,7 @@ static void free_hash_elem(HashElem *hash_elem, int free_edge_also){
     }
 }
 
-static void free_table(HashTable *tbl){
+void free_table(HashTable *tbl){
     int i;
     for(i = 0;i < tbl->size;i++){
         free_hash_elem(&(tbl->start_table[i]), 1);
@@ -90,14 +90,37 @@ static int get_edges_by_start(HashTable *tbl, char *start, Edge *edges, int max_
 
     int count = 0;
     while(hash_elem = hash_elem->next){
-        *edges = *(hash_elem->edge);
-        edges++;
-        count++;
-        if(max_num_of_result == count){
-            printf("Node length is too long.");
-            return -1;
+        if(!strcmp(hash_elem->edge->start, start)){
+            *edges = *(hash_elem->edge);
+            edges++;
+            count++;
+            if(max_num_of_result == count){
+                printf("Node length is too long.");
+                return -1;
+            }
         }
     }
+
+    return count;
+}
+
+static int search_edges_by_start_and_end(HashTable *tbl, char *start, char *end, Edge *edges, int max_num_of_result){
+    int i, len, count;
+
+    Edge* edges_got_by_start = (Edge*) malloc(sizeof(Edge) * max_num_of_result);
+
+    count = 0;
+    if(0 < (len = get_edges_by_start(tbl, start, edges_got_by_start, max_num_of_result))){
+        for(i=0;i<len;i++){
+            if(!strcmp((edges_got_by_start+i)->end, end)){
+                *edges = *(edges_got_by_start+i);
+                edges++;
+                count++;
+            }
+        }
+    }
+
+    free(edges_got_by_start);
 
     return count;
 }
@@ -123,7 +146,15 @@ HashTable* init_table(int size){
     return tbl;
 }
 
-void add_edge_to_table(HashTable *tbl, char *start, char *end){
+int add_edge_to_table(HashTable *tbl, char *start, char *end){
+    Edge *edges = (Edge*) malloc(sizeof(Edge) * LARGE_NUMBER);
+    int len = search_edges_by_start_and_end(tbl, start, end, edges, LARGE_NUMBER);
+    free(edges);
+
+    if(0 < len){
+        return 0;
+    }
+
     char* start_entity = (char*)malloc(sizeof(char) * (strlen(start) + 1));
     char* end_entity = (char*)malloc(sizeof(char) * (strlen(end) + 1));
 
@@ -140,6 +171,8 @@ void add_edge_to_table(HashTable *tbl, char *start, char *end){
 
     int end_key = get_key(tbl->size, edge->end);
     add_edge(&(tbl->end_table[end_key]), edge);
+
+    return 0;
 }
 
 static int get_descendants0(HashTable *tbl, char *center, int depth, Edge *result, int max_num_of_result, char* already_used_nodes){

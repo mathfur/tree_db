@@ -91,6 +91,54 @@ TEST(edge, test_free_hash_elem__1_edge){
 
 // ===============================================================================
 
+TEST(edge, test_search_edges_by_start_and_end__with_0_edges){
+    HashTable* tbl = init_table(1000);
+    Edge result[10];
+
+    // 前提: エッジが無い場合
+
+    TEST_ASSERT_EQUAL(search_edges_by_start_and_end(tbl, "foo", "bar", result, 10), 0);
+
+    free_table(tbl);
+}
+
+TEST(edge, test_search_edges_by_start_and_end__with_1_edges){
+    HashTable* tbl = init_table(1000);
+    Edge result[10];
+
+    // 前提: エッジが(foo, bar)の場合
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "bar"), 0);
+
+    TEST_ASSERT_EQUAL(search_edges_by_start_and_end(tbl, "foo", "bar", result, 10), 1);
+    TEST_ASSERT_EQUAL_STRING((result[0]).start, "foo");
+    TEST_ASSERT_EQUAL_STRING((result[0]).end,   "bar");
+
+    free_table(tbl);
+}
+
+TEST(edge, test_search_edges_by_start_and_end__with_2_edges){
+    HashTable* tbl = init_table(1000);
+    Edge result[10];
+
+    // 前提: エッジが(foo, bar), (foo, baz)の場合
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "bar"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "baz"), 0);
+
+    TEST_ASSERT_EQUAL(search_edges_by_start_and_end(tbl, "foo", "bar", result, 10), 1);
+    TEST_ASSERT_EQUAL_STRING((result[0]).start, "foo");
+    TEST_ASSERT_EQUAL_STRING((result[0]).end,   "bar");
+
+    TEST_ASSERT_EQUAL(search_edges_by_start_and_end(tbl, "foo", "baz", result, 10), 1);
+    TEST_ASSERT_EQUAL_STRING((result[0]).start, "foo");
+    TEST_ASSERT_EQUAL_STRING((result[0]).end,   "baz");
+
+    TEST_ASSERT_EQUAL(search_edges_by_start_and_end(tbl, "bar", "baz", result, 10), 0);
+
+    free_table(tbl);
+}
+
+// ===============================================================================
+
 TEST(edge, test_get_edges_by_start_with_depth_0){
     HashTable* tbl = init_table(1000);
     Edge *result;
@@ -105,7 +153,7 @@ TEST(edge, test_get_edges_by_start_with_one_edge){
     Edge result[10];
 
     // 前提: エッジが"foo"と"bar"のみの場合
-    add_edge_to_table(tbl, "foo", "bar");
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "bar"), 0);
 
     // 中心がfooの場合, (foo, bar)のみが返る
     TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "foo", result, 10), 1);
@@ -123,8 +171,8 @@ TEST(edge, test_get_edges_by_start_with_2_edge){
     Edge result[10];
 
     // 前提: エッジが(foo, bar), (foo, baz)の場合
-    add_edge_to_table(tbl, "foo", "bar");
-    add_edge_to_table(tbl, "foo", "baz");
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "bar"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "baz"), 0);
 
     // 中心がfooの場合, (foo, bar), (foo, baz)が返る
     TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "foo", result, 10), 2);
@@ -135,6 +183,62 @@ TEST(edge, test_get_edges_by_start_with_2_edge){
 
     // 中心がbarの場合, 何も返らない
     TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "bar", result, 10), 0);
+
+    free_table(tbl);
+}
+
+TEST(edge, test_get_edges_when_start_is_equal_to_end_with_1_edge){
+    HashTable* tbl = init_table(1000);
+    Edge result[10];
+
+    // 前提: エッジが(foo, foo)の場合
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "foo"), 0);
+
+    // 中心がfooの場合, (foo, foo)が返る
+    TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "foo", result, 10), 1);
+    TEST_ASSERT_EQUAL_STRING((result[0]).start, "foo");
+    TEST_ASSERT_EQUAL_STRING((result[0]).end,   "foo");
+
+    // 中心がbarの場合, 何も返らない
+    TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "bar", result, 10), 0);
+
+    free_table(tbl);
+}
+
+TEST(edge, test_get_edges_when_start_is_equal_to_end_with_2_edge){
+    HashTable* tbl = init_table(1000);
+    Edge result[10];
+
+    // 前提: エッジが(foo, foo), (foo, foo)の場合
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "foo"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "foo"), 0);
+
+    // 中心がfooの場合, (foo, foo)が返る ( 重複が合っても1個しか返さない )
+    TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "foo", result, 10), 1);
+    TEST_ASSERT_EQUAL_STRING((result[0]).start, "foo");
+    TEST_ASSERT_EQUAL_STRING((result[0]).end,   "foo");
+
+    // 中心がbarの場合, 何も返らない
+    TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "bar", result, 10), 0);
+
+    free_table(tbl);
+}
+
+TEST(edge, test_get_edges_by_start_with_small_size_table){
+    HashTable* tbl = init_table(1);
+    Edge result[10];
+
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "e1", "foo"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "e2", "foo"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "e3", "foo"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "e4", "foo"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "e5", "foo"), 0);
+
+    TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "e1", result, 10), 1);
+    TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "e2", result, 10), 1);
+    TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "e3", result, 10), 1);
+    TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "e4", result, 10), 1);
+    TEST_ASSERT_EQUAL(get_edges_by_start(tbl, "e5", result, 10), 1);
 
     free_table(tbl);
 }
@@ -164,7 +268,7 @@ TEST(edge, test_get_descendants_with_one_edge){
     Edge result[10];
 
     // 前提: エッジが"foo"と"bar"のみの場合
-    add_edge_to_table(tbl, "foo", "bar");
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "bar"), 0);
 
     // depthが1で、中心がfooの場合, (foo, bar)のみが返る
     TEST_ASSERT_EQUAL(get_descendants(tbl, "foo", 1, result, 10), 1);
@@ -187,8 +291,8 @@ TEST(edge, test_get_descendants_with_2_edge){
     Edge result[10];
 
     // 前提: エッジが(foo, bar), (foo, baz)の場合
-    add_edge_to_table(tbl, "foo", "bar");
-    add_edge_to_table(tbl, "foo", "baz");
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "bar"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "baz"), 0);
 
     // depthが0で、中心がfooの場合, 何も返らない。
     TEST_ASSERT_EQUAL(get_descendants(tbl, "foo", 0, result, 10), 0);
@@ -218,8 +322,8 @@ TEST(edge, test_get_descendants_with_loop){
     Edge result[10];
 
     // 前提: エッジが(foo, bar), (bar, foo)の場合
-    add_edge_to_table(tbl, "foo", "bar");
-    add_edge_to_table(tbl, "bar", "foo");
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "foo", "bar"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "bar", "foo"), 0);
 
     // depthが0で、中心がfooの場合, 何も返らない。
     TEST_ASSERT_EQUAL(get_descendants(tbl, "foo", 0, result, 10), 0);
@@ -246,6 +350,19 @@ TEST(edge, test_get_descendants_with_loop){
     free_table(tbl);
 }
 
+TEST(edge, test_tmp){
+    HashTable* tbl = init_table(1000);
+    Edge result[10];
+
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "v", "v"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "v", "v"), 0);
+    TEST_ASSERT_EQUAL(add_edge_to_table(tbl, "v", "v"), 0);
+
+    TEST_ASSERT_EQUAL(get_descendants(tbl, "v", 2, result, 10), 1);
+
+    free_table(tbl);
+}
+
 // ===============================================================================
 
 TEST(edge, test_get_descendants__edge_is_unique){
@@ -266,7 +383,7 @@ TEST(edge, test_get_descendants__edge_is_unique){
         for(j=0;j<max;j++){
             sprintf(buf, "%d", i);
             sprintf(buf2, "%d", j);
-            add_edge_to_table(tbl, buf, buf2);
+            TEST_ASSERT_EQUAL(add_edge_to_table(tbl, buf, buf2), 0);
         }
     }
 
@@ -306,6 +423,9 @@ TEST_GROUP_RUNNER(edge) {
   RUN_TEST_CASE(edge, test_get_edges_by_start_with_depth_0);
   RUN_TEST_CASE(edge, test_get_edges_by_start_with_one_edge);
   RUN_TEST_CASE(edge, test_get_edges_by_start_with_2_edge);
+  RUN_TEST_CASE(edge, test_get_edges_when_start_is_equal_to_end_with_1_edge);
+  RUN_TEST_CASE(edge, test_get_edges_when_start_is_equal_to_end_with_2_edge);
+  RUN_TEST_CASE(edge, test_get_edges_by_start_with_small_size_table);
 
   RUN_TEST_CASE(edge, test_get_descendants_with_negative_depth);
   RUN_TEST_CASE(edge, test_get_descendants_with_depth_0);
@@ -319,7 +439,13 @@ TEST_GROUP_RUNNER(edge) {
   RUN_TEST_CASE(edge, test_free_hash_elem__0_edge);
   RUN_TEST_CASE(edge, test_free_hash_elem__1_edge);
 
+  RUN_TEST_CASE(edge, test_search_edges_by_start_and_end__with_0_edges);
+  RUN_TEST_CASE(edge, test_search_edges_by_start_and_end__with_1_edges);
+  RUN_TEST_CASE(edge, test_search_edges_by_start_and_end__with_2_edges);
+
   RUN_TEST_CASE(edge, test_get_descendants__edge_is_unique);
+
+  RUN_TEST_CASE(edge, test_tmp);
 }
 
 static void runEdgeTests() {
