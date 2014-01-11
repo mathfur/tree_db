@@ -157,6 +157,8 @@ static int get_descendants0(HashTable *tbl, char *center, int depth, Edge *resul
             if(*ptr == '\0'){
                 strcpy(ptr, center);
                 break;
+            }else if(!strcmp(ptr, center)){
+                break;
             }
         }
 
@@ -164,7 +166,10 @@ static int get_descendants0(HashTable *tbl, char *center, int depth, Edge *resul
         int len = get_edges_by_start(tbl, center, edges, max_num_of_result);
 
         int i;
+        int continue_flag;
         for(i=0;i<len;i++){
+            continue_flag = 0;
+
             if(max_num_of_result < i){
                 return (-1);
             }
@@ -174,9 +179,14 @@ static int get_descendants0(HashTable *tbl, char *center, int depth, Edge *resul
 
             for(j=0;j<BUFSIZ;j++){
                 ptr = already_used_nodes + BUFSIZ*j;
+
                 if(!strcmp(ptr, edges[i].end)){
-                    continue;
+                    continue_flag = 1;
                 }
+            }
+
+            if(continue_flag){
+                continue;
             }
 
             Edge child_result[max_num_of_result];

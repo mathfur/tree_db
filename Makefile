@@ -11,8 +11,7 @@ PROG?=tree_db
 OBJS=edge.o tree.o server.o helper.o
 
 BUILD_DIR = ./build
-UNITY_TARGET = $(BUILD_DIR)/test_target
-PERFORMANCE_TEST_TARGET = $(BUILD_DIR)/test_performance
+TEST_TARGET = $(BUILD_DIR)/test_target
 
 UNITY_SRC_DIR = ./test/src
 UNITY_FIXTURE = ./test/fixtures
@@ -52,12 +51,13 @@ test: clean $(TEST_NAMES) integration_test
 
 $(TEST_NAMES):
 	install -d $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(UNITY_INC_DIRS) $(SRC_FILES) test/$@.c -o $(UNITY_TARGET)
-	$(UNITY_PREFIX) ./$(UNITY_TARGET) $(UNITY_SUFFIX)
+	$(CC) $(CFLAGS) $(UNITY_INC_DIRS) $(SRC_FILES) test/$@.c -o $(TEST_TARGET)
+	$(UNITY_PREFIX) ./$(TEST_TARGET) $(UNITY_SUFFIX)
 
 $(PERFORMANCE_TEST_NAMES):
-	$(CC) $(CFLAGS) -DTEST_TAGET=$(patsubst performance_test_%,%,$@) -I./ test/test_performance.c -o $(PERFORMANCE_TEST_TARGET)
-	./$(PERFORMANCE_TEST_TARGET)
+	install -d $(BUILD_DIR)
+	$(CC) $(CFLAGS) -I./ test/$@.c -o $(TEST_TARGET)
+	./$(TEST_TARGET)
 
 only_one_respone_target: $(OBJS)
 	$(CC) $(CFLAGS) -DONLY_ONE_RESPONSE=1 -I./ $(OBJS) tree_db.c -o $(ONLY_ONE_RESPONE_TARGET)

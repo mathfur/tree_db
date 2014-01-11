@@ -6,6 +6,9 @@ compiler:
 
 before_script:
   - "export CFLAGS=$CFLAGS' -v'"
+  - "make"
+  - "make install"
 
 script:
-  - "make && make test"
+  - "make test"
+  - "tree_db"

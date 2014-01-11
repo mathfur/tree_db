@@ -20,7 +20,7 @@ class Test::Unit::TestCase
     result = []
 
     IO.popen("#{BASE_DIR}/tree_db -p #{PORT_NUM} -s #{DATA_FNAME}", "r+") do |io|
-      url = "http://127.0.0.1:#{PORT_NUM}?#{opt.map{|k,v| "#{k}=#{v}"}.join('&')}"
+      url = "http://127.0.0.1:#{PORT_NUM}/?#{opt.map{|k,v| "#{k}=#{v}"}.join('&')}"
 
       `curl -s '#{url}'`.scan(/(\w+),(\w+)/).each do |k, v|
         result << [k, v]
