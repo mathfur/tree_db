@@ -11,4 +11,4 @@ before_script:
 
 script:
   - "make test"
-  - "tree_db"
+  - "tree_db --help"
