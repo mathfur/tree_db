@@ -4,23 +4,18 @@
 module RandomTestSpec (spec) where
 
 import Test.Hspec
-import Test.Hspec.HUnit
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 import Test.QuickCheck.Property as P
-import Test.QuickCheck.Arbitrary
-import Debug.Trace
 import Foreign
 import Foreign.C
 import Foreign.C.Types
-import Foreign.Ptr
-import Criterion.Main
 import Control.Applicative
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as C8
 
 data CVoid
-newtype HashTable = MkHashTable (Ptr CVoid) -- TODO: CVoidの部分はこれに変える
+type HashTable = Ptr CVoid
 
 instance Arbitrary B.ByteString where
     arbitrary = do
@@ -42,6 +37,9 @@ instance Arbitrary GetDescendantsArgument where
       let edges = map (\(i, j) -> (id2label nodes i, id2label nodes j)) edge_idx_pairs
       return $ GetDescendantsArgument (id2label nodes center_idx) depth edges
 
+-----------------------------------------------------------------------------------------
+---- | Helpers
+
 id2label :: [a] -> Int -> a
 id2label nodes idx = nodes !! (idx `mod` (length nodes))
 
@@ -54,6 +52,16 @@ get_result args = do
       
       free_table tbl
       return r
+
+wrap_add_edge_to_table :: Ptr CVoid -> B.ByteString -> B.ByteString -> IO ()
+wrap_add_edge_to_table tbl start end = do
+   _ <- B.useAsCString start $
+          \c_start -> B.useAsCString end $
+            \c_end -> add_edge_to_table tbl c_start c_end
+   return ()
+
+-----------------------------------------------------------------------------------------
+---- | Tests
 
 -- テスト1: depthが0なら結果数も常に0個
 prop_return_value_is_zero_when_depth_is_zero :: GetDescendantsArgument -> Property
@@ -74,15 +82,8 @@ wrap_get_descendants tbl center_name depth = do
         x = "xxxxxxxxxxxxxxxxxxxxxxx" -- TODO: 書き直す
     r <- B.useAsCStringLen x $
            \(cstr, len) -> B.useAsCString center_name $
-             \c_center -> get_descendants tbl c_center (fromIntegral depth) cstr 6
+             \c_center -> get_descendants tbl c_center (fromIntegral depth) cstr len
     return r
-
-wrap_add_edge_to_table :: Ptr CVoid -> B.ByteString -> B.ByteString -> IO ()
-wrap_add_edge_to_table tbl start end = do
-   r <- B.useAsCString start $
-          \c_start -> B.useAsCString end $
-            \c_end -> add_edge_to_table tbl c_start c_end
-   return ()
 
 spec :: Spec
 spec = do
@@ -90,7 +91,7 @@ spec = do
     prop "depth == zero => return value == 0" prop_return_value_is_zero_when_depth_is_zero
     prop "prop 2" prop_2
 
-foreign import ccall init_table :: CInt -> IO (Ptr CVoid)
-foreign import ccall free_table :: Ptr CVoid -> IO ()
-foreign import ccall add_edge_to_table :: Ptr CVoid -> CString -> CString -> IO Int
-foreign import ccall get_descendants :: Ptr CVoid -> CString -> CInt -> Ptr CChar -> Int -> IO Int
+foreign import ccall init_table :: CInt -> IO HashTable
+foreign import ccall free_table :: HashTable -> IO ()
+foreign import ccall add_edge_to_table :: HashTable -> CString -> CString -> IO Int
+foreign import ccall get_descendants :: HashTable -> CString -> CInt -> Ptr CChar -> Int -> IO Int
