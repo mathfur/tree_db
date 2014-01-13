@@ -1,7 +1,7 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module BlankSpec (spec) where
+module RandomTestSpec (spec) where
 
 import Test.Hspec
 import Test.Hspec.HUnit
@@ -18,8 +18,6 @@ import Criterion.Main
 import Control.Applicative
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as C8
-
-import Foo
 
 data CVoid
 newtype HashTable = MkHashTable (Ptr CVoid) -- TODO: CVoidの部分はこれに変える

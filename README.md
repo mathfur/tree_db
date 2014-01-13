@@ -24,7 +24,14 @@ Install
 
 Usage
 -----
- 1. tree_db --port 12355 --interface http --source edges.txt
+ 1. create a following file.
+```
+edge1_start_name,edge1_end_name
+edge2_start_name,edge2_end_name
+edge3_start_name,edge3_end_name
+...
+```
+ 2. tree_db --port 12355 --interface http --source edges.txt
 
 License
 -------
